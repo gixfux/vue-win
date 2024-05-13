@@ -38,8 +38,7 @@ const windowSize = {
   height: window.innerHeight
 }
 
-// console.log(props.windowName?.toLowerCase())
-const windowContext = appsStore.appContext(props.windowName?.toLowerCase()!)
+const windowContext = appsStore.appContext(props.windowName!)
 
 // const windowContext = appsStore[props.windowName?.toLowerCase() + 'Context']
 
