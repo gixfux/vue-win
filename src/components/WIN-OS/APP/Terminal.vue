@@ -20,8 +20,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 
-const props = defineProps(['windowName'])
-
 const context: TerminalBoxContext = {}
 class Terminal {
   constructor(public context: TerminalBoxContext) {
@@ -130,15 +128,14 @@ onMounted(() => {
   position: relative;
   width: 100%;
   height: 100%;
-  background-color: rgba(32, 31, 31, 0.862);
-  // background-color: rgba(255, 0, 0, 0.862);
+  background-color: $appBackColor;
   border-radius: 8px;
   overflow: hidden;
 
   .header {
     width: 100%;
     height: 30px;
-    background-color: rgba(32, 31, 31, 0.949);
+    background-color: $appHeaderColor;
     display: flex;
     align-items: center;
 

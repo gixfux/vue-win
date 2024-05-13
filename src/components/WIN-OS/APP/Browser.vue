@@ -15,7 +15,6 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps(['windowName'])
 </script>
 
 <style lang="scss" scoped>

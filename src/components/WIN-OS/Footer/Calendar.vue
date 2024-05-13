@@ -4,9 +4,9 @@
       <div class="hourToMinute">{{ hourNow }}:{{ minuteNow }}</div>
       <div class="yearToDay">{{ yearNow }}/{{ mouthNow + 1}}/{{ dayNow }}</div>
     </div>
-    <div class="mask" v-show="panelIsShow" @click="toggleCalendarPanel"></div>
+    <div class="mask" v-show="footerStore.calendarState" @click="toggleCalendarPanel"></div>
     <Transition>
-      <div id="calendar" v-show="panelIsShow">
+      <div id="calendar" v-show="footerStore.calendarState">
 
         <div class="calendar-operate-box">
           <div class="calendar-title">
@@ -60,9 +60,10 @@
 </template>
 
 <script setup lang="ts">
+import { useFooterStore } from '@/stores/footerStore'
 import { ref, watch } from 'vue'
 
-let panelIsShow = ref(false)
+const footerStore = useFooterStore()
 
 const dayofMouth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
@@ -78,15 +79,13 @@ let secondNow = ref(dataNow.getSeconds())
 let showMouth = ref(mouthNow.value)
 let showYear = ref(yearNow.value)
 
-let weekNow = ref(dataNow.getDay())
-
 let daysInLastMouth = 0 // 上个月日期的天数
 
 let indexOfDaysInNextMouth = 0 // 下个月日期开始的下标
 
 let daysofCurrentMouth = getMouthInCalender(showYear.value, showMouth.value)
 
-watch(showMouth, (newVal, oldVal) => {
+watch(showMouth, newVal => {
   if (newVal === 12) {
     showMouth.value = 0
     showYear.value++
@@ -99,7 +98,7 @@ watch(showMouth, (newVal, oldVal) => {
 })
 
 function toggleCalendarPanel() {
-  panelIsShow.value = !panelIsShow.value
+  footerStore.changeCalendar()
 }
 
 function toggleToCurrent() {
@@ -186,8 +185,8 @@ setInterval(() => {
     position: fixed;
     top: 0;
     left: 0;
+    bottom: 50px;
     width: 100vw;
-    height: 100vh;
     background-color: transparent;
     z-index: 998;
   }

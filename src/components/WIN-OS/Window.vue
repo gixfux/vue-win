@@ -1,21 +1,23 @@
 <template>
-  <Transition>
-    <div class="window-app" :id="'window' + windowName" v-bind:style="{width: windowSize.width - windowContext.right - windowContext.left + 'px', height: windowSize.height - windowContext.bottom - windowContext.top + 'px', top: windowContext.top + 'px', left: windowContext.left + 'px', minHeight: windowContext.minHeight + 'px', minWidth: windowContext.minWidth + 'px', zIndex: windowContext.zIndex}" @mousedown="toggleWindowIndexToTop" v-show="windowContext.isShow" v-if="windowContext.isActive">
+  <Transition name="window">
+    <div class="window-app" :class="{'active-app': appsStore.activeApp === props.windowName}" :id="'window' + windowName" v-bind:style="{width: windowContext.width + 'px', height: windowContext.height + 'px', top: windowContext.top + 'px', left: windowContext.left + 'px', minHeight: windowContext.minHeight + 'px', minWidth: windowContext.minWidth + 'px', zIndex: windowContext.zIndex}" @mousedown="toggleWindowIndexToTop" v-show="windowContext.isShow" v-if="windowContext.isActive">
       <div class="header" @mousedown="beforeWindowMove"></div>
       <slot :windowName="props.windowName"></slot>
 
-      <div class="window-resize window-resize-top" @mousedown="beforeResize"></div>
-      <div class="window-resize window-resize-bottom" @mousedown="beforeResize"></div>
-      <div class="window-resize window-resize-left" @mousedown="beforeResize"></div>
-      <div class="window-resize window-resize-right" @mousedown="beforeResize"></div>
+      <div class="scaleall" v-if="windowContext.scalable">
+        <div class="window-resize window-resize-top" @mousedown="beforeResize"></div>
+        <div class="window-resize window-resize-bottom" @mousedown="beforeResize"></div>
+        <div class="window-resize window-resize-left" @mousedown="beforeResize"></div>
+        <div class="window-resize window-resize-right" @mousedown="beforeResize"></div>
 
-      <div class="window-resize window-resize-topleft" @mousedown="beforeResize"></div>
-      <div class="window-resize window-resize-topright" @mousedown="beforeResize"></div>
-      <div class="window-resize window-resize-bottomleft" @mousedown="beforeResize"></div>
-      <div class="window-resize window-resize-bottomright" @mousedown="beforeResize"></div>
+        <div class="window-resize window-resize-topleft" @mousedown="beforeResize"></div>
+        <div class="window-resize window-resize-topright" @mousedown="beforeResize"></div>
+        <div class="window-resize window-resize-bottomleft" @mousedown="beforeResize"></div>
+        <div class="window-resize window-resize-bottomright" @mousedown="beforeResize"></div>
+      </div>
 
       <div class="window-control">
-        <span class="btn btn-max" @click="enlargeWinodw"></span>
+        <span class="btn btn-max" @click="enlargeWindow" v-if="windowContext.scalable"></span>
         <span class="btn btn-min" @click="miniWindow"></span>
         <span class="btn btn-close" @click="closeWindow"></span>
       </div>
@@ -25,7 +27,7 @@
 
 <script setup lang="ts">
 import { onMounted, onUpdated } from 'vue'
-import { useAppsStore } from '../stores/appsStore'
+import { useAppsStore } from '../../stores/appsStore'
 const props = defineProps({
   windowName: String
 })
@@ -36,60 +38,74 @@ const windowSize = {
   height: window.innerHeight
 }
 
-console.log(props.windowName?.toLowerCase())
+// console.log(props.windowName?.toLowerCase())
+const windowContext = appsStore.appContext(props.windowName?.toLowerCase()!)
 
-const windowContext = appsStore[props.windowName?.toLowerCase() + 'Context']
+// const windowContext = appsStore[props.windowName?.toLowerCase() + 'Context']
 
 const windowSizeBeforeMax = {
   top: windowContext.top,
   left: windowContext.left,
   right: windowContext.right,
-  bottom: windowContext.bottom
+  bottom: windowContext.bottom,
+  height: windowContext.height,
+  width: windowContext.width
 }
 
-function enlargeWinodw(e: MouseEvent) {
+// const windowWidth = computed(() => {
+//   if(isSizing) {
+//     return windowSize.width - windowContext.right - windowContext.left
+//   } else {
+//     return
+//   }
+// })
+
+function enlargeWindow() {
   if (windowContext.top !== 0 || windowContext.left !== 0 || windowContext.right !== 0 || windowContext.bottom !== 50) {
     windowSizeBeforeMax.top = windowContext.top
     windowSizeBeforeMax.left = windowContext.left
     windowSizeBeforeMax.right = windowContext.right
     windowSizeBeforeMax.bottom = windowContext.bottom
+    windowSizeBeforeMax.width = windowContext.width
+    windowSizeBeforeMax.height = windowContext.height
 
     windowContext.top = 0
     windowContext.left = 0
     windowContext.right = 0
     windowContext.bottom = 50
+    windowContext.width = windowSize.width
+    windowContext.height = windowSize.height - 50
   } else {
     windowContext.top = windowSizeBeforeMax.top
     windowContext.left = windowSizeBeforeMax.left
     windowContext.right = windowSizeBeforeMax.right
     windowContext.bottom = windowSizeBeforeMax.bottom
+    windowContext.width = windowSizeBeforeMax.width
+    windowContext.height = windowSizeBeforeMax.height
   }
 }
 
-function miniWindow(e: MouseEvent) {
-  appsStore.showAppsNum--
-  windowContext.isShow = !windowContext.isShow
+function miniWindow() {
+  appsStore.minApp(props.windowName!)
 }
 
-function closeWindow(e: MouseEvent) {
-  appsStore.showAppsNum--
-  const index = appsStore.currentApps.findIndex(val => val === props.windowName)
-  // console.log(windowContext.zIndex)
-  // windowContext.isActive = false
+function closeWindow() {
+  appsStore.closeApp(props.windowName!)
+  /* const index = appsStore.currentApps.findIndex(val => val === props.windowName)
   for (const windowName of appsStore.currentApps) {
     if (appsStore[windowName.toLowerCase() + 'Context'].zIndex > windowContext.zIndex) {
       appsStore[windowName.toLowerCase() + 'Context'].zIndex--
     }
   }
   appsStore.currentApps.splice(index, 1)
-  windowContext.isActive = false
+  windowContext.isActive = false */
 }
 
 function toggleWindowIndexToTop(e: MouseEvent) {
   if (/btn-close/.test((e.target as HTMLDivElement).classList.value) || /btn-min/.test((e.target as HTMLDivElement).classList.value)) {
     return
   }
-  appsStore.toggleWindowIndexToTop(props.windowName!.toLowerCase() + 'Context')
+  appsStore.toggleWindowIndexToTop(props.windowName!)
 }
 
 function beforeWindowMove(e: MouseEvent) {
@@ -106,6 +122,9 @@ function beforeWindowMove(e: MouseEvent) {
     right: windowContext.right
   }
 
+  const maxTop = windowSize.height - windowContext.height - 50
+  const maxLeft = windowSize.width - windowContext.width
+
   function windowMoving(e: MouseEvent) {
     const currentMousePos = {
       x: e.clientX,
@@ -119,18 +138,10 @@ function beforeWindowMove(e: MouseEvent) {
     const newRight = initRange.right - offsetPos.offsetX
     const newBottom = initRange.bottom - offsetPos.offsetY
 
-    if (newBottom > 50) {
-      windowContext.top = Math.max(0, newTop)
-    }
-    if (newRight > 0) {
-      windowContext.left = Math.max(0, newLeft)
-    }
-    if (newTop > 0) {
-      windowContext.bottom = Math.max(50, newBottom)
-    }
-    if (newLeft > 0) {
-      windowContext.right = Math.max(0, newRight)
-    }
+    windowContext.top = newBottom > 50 ? Math.max(0, newTop) : maxTop
+    windowContext.left = newRight > 0 ? Math.max(0, newLeft) : maxLeft
+    windowContext.bottom = Math.max(50, newBottom)
+    windowContext.right = Math.max(0, newRight)
   }
 
   function windowMoved() {
@@ -170,18 +181,22 @@ function beforeResize(e: MouseEvent) {
     if (/top/.test(mainClass)) {
       const newTop = initRange.top + offsetPos.offsetY
       windowContext.top = newTop < 0 ? 0 : newTop > initRange.maxTop ? initRange.maxTop : newTop
+      windowContext.height = windowSize.height - windowContext.top - windowContext.bottom
     }
     if (/left/.test(mainClass)) {
       const newLeft = initRange.left + offsetPos.offsetX
       windowContext.left = newLeft < 0 ? 0 : newLeft > initRange.maxLeft ? initRange.maxLeft : newLeft
+      windowContext.width = windowSize.width - windowContext.left - windowContext.right
     }
     if (/right/.test(mainClass)) {
       const newRight = initRange.right - offsetPos.offsetX
       windowContext.right = newRight < 0 ? 0 : newRight
+      windowContext.width = windowSize.width - windowContext.left - windowContext.right
     }
     if (/bottom/.test(mainClass)) {
       const newBottom = initRange.bottom - offsetPos.offsetY
       windowContext.bottom = newBottom < 50 ? 50 : newBottom
+      windowContext.height = windowSize.height - windowContext.top - windowContext.bottom
     }
   }
 
@@ -199,14 +214,17 @@ onMounted(() => {
   windowContext.windowBox = document.getElementById('window' + props.windowName)
 })
 
-onUpdated(() => {
-  console.log(windowContext)
-})
+onUpdated(() => {})
 </script>
 
 <style lang="scss" scoped>
 .window-app {
   position: absolute;
+  backdrop-filter: blur(10px);
+  opacity: 0.9;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: opacity 0.15s;
 
   .header {
     position: absolute;
@@ -229,12 +247,22 @@ onUpdated(() => {
     align-items: center;
     z-index: 4;
 
+    & .btn::before {
+      transition: all 0.2s;
+      border-color: transparent;
+    }
+
+    & .btn::after {
+      transition: all 0.2s;
+      border-color: transparent;
+    }
+
     &:hover .btn::before {
-      animation: 0.3s btn-border-color forwards;
+      border-color: #424242cc;
     }
 
     &:hover .btn::after {
-      animation: 0.3s btn-border-color forwards;
+      border-color: #424242cc;
     }
 
     .btn {
@@ -260,7 +288,6 @@ onUpdated(() => {
       border: transparent 3.5px solid;
       border-bottom-color: transparent !important;
       border-right-color: transparent !important;
-      // animation: 2s btn-border-color forwards;
     }
 
     .btn-max::after {
@@ -274,7 +301,6 @@ onUpdated(() => {
       border: transparent 3.5px solid;
       border-top-color: transparent !important;
       border-left-color: transparent !important;
-      // animation: 2s btn-border-color forwards;
     }
 
     .btn-min {
@@ -288,7 +314,6 @@ onUpdated(() => {
         left: 5px;
         top: 8.5px;
         border: transparent 1.5px solid;
-        // animation: 2s btn-border-color forwards;
       }
     }
 
@@ -305,7 +330,6 @@ onUpdated(() => {
         top: 8.5px;
         border: transparent 1.5px solid;
         transform: rotate(45deg);
-        // animation: 2s btn-border-color forwards;
       }
 
       &::after {
@@ -318,7 +342,6 @@ onUpdated(() => {
         top: 8.5px;
         border: transparent 1.5px solid;
         transform: rotate(-45deg);
-        // animation: 2s btn-border-color forwards;
       }
     }
   }
@@ -398,14 +421,19 @@ onUpdated(() => {
     height: 6px;
     cursor: se-resize;
   }
+}
 
-  @keyframes btn-border-color {
-    0% {
-      border-color: transparent;
-    }
-    100% {
-      border-color: #424242cc;
-    }
-  }
+.active-app {
+  opacity: 1;
+}
+
+.window-enter-active,
+.window-leave-active {
+  transition: all 0.3s ease;
+}
+
+.window-enter-from,
+.window-leave-to {
+  transform: translateY(80%) scale(0.2, 0.2);
 }
 </style>

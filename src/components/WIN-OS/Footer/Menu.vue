@@ -1,14 +1,14 @@
 <template>
   <div id="menu">
-    <div class="icon-menu" @click="menuIsShow = !menuIsShow">
+    <div class="icon-menu" @click="footerStore.changeMenu()">
       <svg fill="white" width="30px" height="30px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
         <title>microsoft</title>
         <path d="M16.742 16.742v14.253h14.253v-14.253zM1.004 16.742v14.253h14.256v-14.253zM16.742 1.004v14.256h14.253v-14.256zM1.004 1.004v14.256h14.256v-14.256z"></path>
       </svg>
     </div>
-    <div class="mask" v-show="menuIsShow" @click="menuIsShow = !menuIsShow"></div>
+    <div class="mask" v-show="footerStore.menuState" @click="footerStore.changeMenu()"></div>
     <Transition>
-      <div class="menu-main" v-show="menuIsShow">
+      <div class="menu-main" v-show="footerStore.menuState">
         <div class="item browser" @click="addApp('Browser')">
           <svg width="100px" height="100px" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg" fill="none">
             <circle cx="96" cy="96" r="74" stroke="#2980b9" stroke-width="10" />
@@ -30,56 +30,30 @@
             <path d="M16 15.503A5.041 5.041 0 1 0 16 5.42a5.041 5.041 0 0 0 0 10.083zm0 2.215c-6.703 0-11 3.699-11 5.5v3.363h22v-3.363c0-2.178-4.068-5.5-11-5.5z" stroke="pink" stroke-width="1.5" />
           </svg>
         </div>
+
+        <div class="item wallpaper" @click="addApp('Wallpaper')">
+          <svg t="1713785966192" class="icon" viewBox="0 0 1024 1024" width="100" height="100">
+            <path d="M392.32 800.192l242.912-242.944 164.992 164.992 0.032 77.76-407.968 0.192zM224 224l576-0.256 0.192 407.968-142.336-142.336a31.968 31.968 0 0 0-45.248 0L301.76 800.224H224V224z m576.256-64H223.712a63.808 63.808 0 0 0-63.68 63.744v576.512C160 835.424 188.544 864 223.68 864h576.544A63.808 63.808 0 0 0 864 800.256V223.744A63.84 63.84 0 0 0 800.256 160z" fill="white" p-id="4252"></path>
+            <path d="M416 384a31.68 31.68 0 0 1 32 32 31.68 31.68 0 0 1-32 32 31.68 31.68 0 0 1-32-32c0-17.952 14.048-32 32-32m0 128c52.928 0 96-43.072 96-96s-43.072-96-96-96-96 43.072-96 96 43.072 96 96 96" fill="white" p-id="4253"></path>
+          </svg>
+        </div>
+
       </div>
+
     </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useAppsStore } from '../stores/appsStore'
-import { ref } from 'vue'
-
-const initAppValue = {
-  Terminal: {
-    top: 100,
-    left: 400,
-    bottom: 50,
-    right: 20
-  },
-  Browser: {
-    top: 50,
-    left: 200,
-    bottom: 100,
-    right: 100
-  },
-  Blob: {
-    top: 30,
-    left: 100,
-    bottom: 200,
-    right: 400
-  }
-}
+import { useAppsStore } from '@/stores/appsStore'
+import { useFooterStore } from '@/stores/footerStore'
 
 const appsStore = useAppsStore()
-
-let menuIsShow = ref(false)
+const footerStore = useFooterStore()
 
 function addApp(app: string) {
-  const addAppContext = appsStore[app.toLowerCase() + 'Context']
-  if (!addAppContext.isActive) {
-    appsStore.currentApps.push(app)
-    addAppContext.top = initAppValue[app].top
-    addAppContext.bottom = initAppValue[app].bottom
-    addAppContext.left = initAppValue[app].left
-    addAppContext.right = initAppValue[app].right
-    addAppContext.isActive = true
-    appsStore.showAppsNum++
-  } else {
-    addAppContext.isShow = true
-    appsStore.showAppsNum++
-  }
-  appsStore.toggleWindowIndexToTop(app.toLowerCase() + 'Context')
-  menuIsShow.value = !menuIsShow.value
+  appsStore.openApp(app)
+  return
 }
 </script>
 
@@ -89,8 +63,8 @@ function addApp(app: string) {
     position: fixed;
     top: 0;
     left: 0;
+    bottom: 50px;
     width: 100vw;
-    height: 100vh;
     background-color: transparent;
     z-index: 998;
   }

@@ -12,9 +12,6 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-
-const props = defineProps(['windowName'])
 </script>
 
 <style scoped>

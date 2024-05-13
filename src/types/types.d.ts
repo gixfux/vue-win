@@ -1,43 +1,33 @@
-declare interface TerminalContext {
+declare interface appContext {
   isShow: boolean
   isActive: boolean
   top: number
   left: number
   bottom: number
   right: number
-  windowBox: HTMLDivElement | null
+  width: number
+  height: number
+  windowBox: HTMLElement | null
   windowName: string
   minWidth: number
   minHeight: number
   zIndex: number
+  scalable: boolean
 }
 
-declare interface BrowserContext {
-  isShow: boolean
-  isActive: boolean
-  top: number
-  left: number
-  bottom: number
-  right: number
-  windowBox: HTMLDivElement | null
-  windowName: string
-  minWidth: number
-  minHeight: number
-  zIndex: number
+declare interface TerminalContext extends appContext {
 }
 
-declare interface BlobContext {
-  isShow: boolean
-  isActive: boolean
-  top: number
-  left: number
-  bottom: number
-  right: number
-  windowBox: HTMLDivElement | null
-  windowName: string
-  minWidth: number
-  minHeight: number
-  zIndex: number
+declare interface BrowserContext extends appContext {
+}
+
+declare interface BlobContext extends appContext {
+}
+
+declare interface WallpaperContext extends appContext {
+}
+
+declare interface ChatContext extends appContext {
 }
 
 declare interface WindowInfo {
@@ -65,4 +55,12 @@ declare interface TerminalBoxContext {
     element?: HTMLSpanElement,
     onclickFun?: Function
   }
+}
+
+declare interface AppInfo {
+  TERMINALINFO: TerminalContext
+  BROWSERINFO: BrowserContext
+  BLOBINFO: BlobContext
+  WALLPAPERINFO: WallpaperContext
+  CHATINFO: ChatContext
 }
