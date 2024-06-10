@@ -61,29 +61,28 @@
 
 <script setup lang="ts">
 import { useFooterStore } from '@/stores/footerStore'
+import CalendarUtils from './utils.ts'
 import { ref, watch } from 'vue'
+
+const calendarUtils = new CalendarUtils()
+const dateNow = calendarUtils.getNowDate()
 
 const footerStore = useFooterStore()
 
-const dayofMouth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-
-const dataNow = new Date()
-let yearNow = ref(dataNow.getFullYear())
-let mouthNow = ref(dataNow.getMonth())
-let dayNow = ref(dataNow.getDate())
-let hourNow = ref(dataNow.getHours())
-let minuteNow = ref(`${dataNow.getMinutes()}`)
-let secondNow = ref(dataNow.getSeconds())
+let yearNow = ref(dateNow.yearNow)
+let mouthNow = ref(dateNow.mouthNow)
+let dayNow = ref(dateNow.dayNow)
+let hourNow = ref(dateNow.hourNow)
+let minuteNow = ref(dateNow.minuteNow)
+let secondNow = ref(dateNow.secondNow)
 
 // 当前显示的月份
 let showMouth = ref(mouthNow.value)
 let showYear = ref(yearNow.value)
 
-let daysInLastMouth = 0 // 上个月日期的天数
-
-let indexOfDaysInNextMouth = 0 // 下个月日期开始的下标
-
-let daysofCurrentMouth = getMouthInCalender(showYear.value, showMouth.value)
+//  daysInLastMouth 上个月日期的天数
+// indexOfDaysInNextMouth 下个月日期开始的下标
+let { indeedDay: daysofCurrentMouth, daysInLastMouth, indexOfDaysInNextMouth } = calendarUtils.getMouthInCalender(showYear.value, showMouth.value)
 
 watch(showMouth, newVal => {
   if (newVal === 12) {
@@ -94,7 +93,7 @@ watch(showMouth, newVal => {
     showYear.value--
   }
 
-  daysofCurrentMouth = getMouthInCalender(showYear.value, showMouth.value)
+  ;({ indeedDay: daysofCurrentMouth, daysInLastMouth, indexOfDaysInNextMouth } = calendarUtils.getMouthInCalender(showYear.value, showMouth.value))
 })
 
 function toggleCalendarPanel() {
@@ -106,62 +105,8 @@ function toggleToCurrent() {
   showMouth.value = mouthNow.value
 }
 
-function getMouthInCalender(yearNow: number, mouthNow: number) {
-  if ((yearNow % 4 === 0 && yearNow % 100 !== 0) || yearNow % 400 === 0) {
-    dayofMouth[1] = 29
-  } else {
-    dayofMouth[1] = 28
-  }
-  const firstDayofMouth = getWeekofFirstDay(yearNow, mouthNow) // 这个月一号的星期数
-
-  const lastMouthIndex = mouthNow === 0 ? 11 : mouthNow - 1
-
-  const indeedDay = new Array(42)
-  // 获取每月开始的日期（从上个月的星期日开始）
-  let dayofMouthStart = 0
-  if (mouthNow === 0) {
-    dayofMouthStart = dayofMouth[11] - (firstDayofMouth === 0 ? 6 : firstDayofMouth - 1)
-  } else {
-    dayofMouthStart = dayofMouth[lastMouthIndex] - (firstDayofMouth === 0 ? 6 : firstDayofMouth - 1)
-  }
-  // 填充上个月的日期
-  for (let i = dayofMouthStart; i <= dayofMouth[lastMouthIndex]; i++) {
-    indeedDay[i - dayofMouthStart] = i
-  }
-
-  daysInLastMouth = dayofMouth[lastMouthIndex] - dayofMouthStart + 1
-
-  // 填充当前月的日期
-  for (let i = 0; i < dayofMouth[mouthNow]; i++) {
-    indeedDay[daysInLastMouth + i] = i + 1
-  }
-  // 填充下个月的日期
-  indexOfDaysInNextMouth = dayofMouth[mouthNow] + daysInLastMouth
-  for (let i = 0; i < 42 - indexOfDaysInNextMouth; i++) {
-    indeedDay[indexOfDaysInNextMouth + i] = i + 1
-  }
-  return indeedDay
-}
-
-function getWeekofFirstDay(yearNow: number, mouthNow: number) {
-  var tmpDate = new Date(yearNow, mouthNow, 1)
-  return tmpDate.getDay()
-}
-
-function getNowDate() {
-  const dataNow = new Date()
-  return {
-    yearNow: dataNow.getFullYear(),
-    mouthNow: dataNow.getMonth(),
-    dayNow: dataNow.getDate(),
-    hourNow: dataNow.getHours(),
-    minuteNow: dataNow.getMinutes() < 10 ? '0' + dataNow.getMinutes() : `${dataNow.getMinutes()}`,
-    secondNow: dataNow.getSeconds()
-  }
-}
-
 setInterval(() => {
-  const newDate = getNowDate()
+  const newDate = calendarUtils.getNowDate()
   yearNow.value = newDate.yearNow
   mouthNow.value = newDate.mouthNow
   dayNow.value = newDate.dayNow

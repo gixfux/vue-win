@@ -1,5 +1,5 @@
 <template>
-  <div id="blob">
+  <div id="chat">
     <div class="header">
       <svg width="35px" height="35px" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg">
         <path d="M885.8 383.8h-90.4c12.3 15.8 19.7 35.6 19.7 57.1v194c0 51.3-42 93.2-93.2 93.2H494.1c12.1 31 42.2 53.1 77.4 53.1h314.3c45.6 0 83-37.3 83-83V466.8c-0.1-45.7-37.4-83-83-83z" fill="#FFB89A" />
@@ -11,16 +11,33 @@
     </div>
 
     <div class="chat-main">
+      <ChatLogin @loginSuccess="initUserInfo"></ChatLogin>
 
+      <ChatRoom v-if="loginSuccess"></ChatRoom>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import ChatLogin from './ChatApp/ChatLogin.vue'
+import ChatRoom from './ChatApp/ChatRoom.vue'
+import { ref } from 'vue'
+import { useChatStore } from '@/stores/chatStore'
+import { useChatSocketStore } from '@/stores/chatSocket/chatSocket'
+
+const chatStore = useChatStore()
+const chatSocketStore = useChatSocketStore()
+let loginSuccess = ref(false)
+
+async function initUserInfo(status: 'login' | 'register') {
+  await chatStore.initRoomGather()
+  chatSocketStore.connectSocket()
+  loginSuccess.value = true
+}
 </script>
 
 <style scoped>
-#blob {
+#chat {
   background-color: #fff;
   width: 100%;
   height: 100%;
@@ -47,6 +64,9 @@
     width: 100%;
     height: calc(100% - 30px);
     background-color: #000;
+    background: center / cover url(/chatWallpaper/image.jpg) no-repeat;
+    /* 为了让modal遮罩层的fixed定位挂载到此dom添加transform */
+    transform: translate(0, 0);
   }
 }
 </style>
