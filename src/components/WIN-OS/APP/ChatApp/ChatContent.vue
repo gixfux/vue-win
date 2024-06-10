@@ -1,6 +1,7 @@
 <template>
   <div id="ChatContent">
     <div class="chat-content">
+      <div class="tip-message">项目正在完善中。。。</div>
       <div class="chat-messages">
         <div class="single-msg" :class="{'single-msg-right': message.userId === chatStore.currentUser.userId}" v-for="(message, index) in chatStore.messageGather[chatSocket.currentRoomId]" :key="index">
           <a-avatar :size="40" :src="chatStore.userGather[message.userId].avatar"></a-avatar>
@@ -55,6 +56,15 @@ onMounted(() => {})
     overflow: scroll;
     overflow-x: hidden;
     scroll-behavior: smooth;
+
+    .tip-message {
+      position: fixed;
+      left: 50%;
+      top: 20px;
+      padding: 10px;
+      border-radius: 10px;
+      background: #000000;
+    }
 
     .chat-messages {
       padding: 0 5px;
