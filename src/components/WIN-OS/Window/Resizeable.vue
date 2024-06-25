@@ -1,18 +1,16 @@
 <template>
-  <div class='resize-box'>
-    <div class="header-move" @mousedown="beforeWindowMove"></div>
+  <div class="header-move" v-if="!windowContext.headerSelf" @mousedown="beforeWindowMove"></div>
 
-    <div class="scaleall" v-if="windowContext.scalable">
-      <div class="window-resize window-resize-top" @mousedown="beforeResize"></div>
-      <div class="window-resize window-resize-bottom" @mousedown="beforeResize"></div>
-      <div class="window-resize window-resize-left" @mousedown="beforeResize"></div>
-      <div class="window-resize window-resize-right" @mousedown="beforeResize"></div>
+  <div class="scaleall" v-if="windowContext.scalable">
+    <div class="window-resize window-resize-top" @mousedown="beforeResize"></div>
+    <div class="window-resize window-resize-bottom" @mousedown="beforeResize"></div>
+    <div class="window-resize window-resize-left" @mousedown="beforeResize"></div>
+    <div class="window-resize window-resize-right" @mousedown="beforeResize"></div>
 
-      <div class="window-resize window-resize-topleft" @mousedown="beforeResize"></div>
-      <div class="window-resize window-resize-topright" @mousedown="beforeResize"></div>
-      <div class="window-resize window-resize-bottomleft" @mousedown="beforeResize"></div>
-      <div class="window-resize window-resize-bottomright" @mousedown="beforeResize"></div>
-    </div>
+    <div class="window-resize window-resize-topleft" @mousedown="beforeResize"></div>
+    <div class="window-resize window-resize-topright" @mousedown="beforeResize"></div>
+    <div class="window-resize window-resize-bottomleft" @mousedown="beforeResize"></div>
+    <div class="window-resize window-resize-bottomright" @mousedown="beforeResize"></div>
   </div>
 </template>
 
@@ -68,6 +66,8 @@ function beforeWindowMove(e: MouseEvent) {
   }
 
   function windowMoved() {
+    console.log('moved')
+
     document.body.style.userSelect = 'auto'
     document.removeEventListener('mousemove', windowMoving)
     document.removeEventListener('mouseup', windowMoved)
@@ -135,95 +135,89 @@ function beforeResize(e: MouseEvent) {
 </script>
 
 <style scoped lang="scss">
-.resize-box {
-  .header-move {
-    position: absolute;
-    top: 3;
-    left: 3;
-    right: 3;
-    width: 100%;
-    height: 30px;
-    background-color: transparent;
-    // position: absolute;
-    z-index: 2;
+.header-move {
+  position: absolute;
+  width: 100%;
+  height: 30px;
+  z-index: 2;
+  background-color: transparent;
+}
+
+.scaleall {
+  .window-resize {
+    z-index: 3;
   }
 
-  .scaleall {
-    .window-resize {
-      z-index: 3;
-    }
+  .window-resize-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    cursor: n-resize;
+  }
 
-    .window-resize-top {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 3px;
-      width: 100%;
-      cursor: n-resize;
-    }
+  .window-resize-left {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 3px;
+    cursor: w-resize;
+  }
 
-    .window-resize-left {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 3px;
-      cursor: w-resize;
-    }
+  .window-resize-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 3px;
+    cursor: e-resize;
+  }
 
-    .window-resize-right {
-      position: absolute;
-      top: 0;
-      right: 0;
-      height: 100%;
-      width: 3px;
-      cursor: e-resize;
-    }
+  .window-resize-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    cursor: s-resize;
+  }
 
-    .window-resize-bottom {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 3px;
-      width: 100%;
-      cursor: s-resize;
-    }
+  .window-resize-topleft {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 6px;
+    cursor: nw-resize;
+  }
 
-    .window-resize-topleft {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 6px;
-      height: 6px;
-      cursor: nw-resize;
-    }
+  .window-resize-topright {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 6px;
+    height: 6px;
+    cursor: ne-resize;
+  }
 
-    .window-resize-topright {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 6px;
-      height: 6px;
-      cursor: ne-resize;
-    }
+  .window-resize-bottomleft {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 6px;
+    height: 6px;
+    cursor: sw-resize;
+  }
 
-    .window-resize-bottomleft {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 6px;
-      height: 6px;
-      cursor: sw-resize;
-    }
-
-    .window-resize-bottomright {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 6px;
-      height: 6px;
-      cursor: se-resize;
-    }
+  .window-resize-bottomright {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 6px;
+    height: 6px;
+    cursor: se-resize;
   }
 }
 </style>

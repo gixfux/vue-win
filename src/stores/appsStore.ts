@@ -1,6 +1,18 @@
 import appInfo from '@/views/WIN-OS/Utils/assets'
 import { defineStore } from 'pinia'
 
+let AppConnection = {
+  'Terminal': appInfo.TERMINALINFO,
+  'Browser': appInfo.BROWSERINFO,
+  'Blob': appInfo.BLOBINFO,
+  'Wallpaper': appInfo.WALLPAPERINFO,
+  'Chat': appInfo.CHATINFO
+}
+const windowSize = {
+  width: window.innerWidth,
+  height: window.innerHeight
+}
+let apps = ['Terminal', 'Browser', 'Blob', 'Wallpaper', 'Chat']
 type AppContexts = 'terminalContext' | 'browserContext' | 'blobContext' | 'wallpaperContext' | 'chatContext';
 type AppInfo = 'TERMINALINFO' | 'BROWSERINFO' | 'BLOBINFO' | 'WALLPAPERINFO' | 'CHATINFO';
 type AppSizeInfo = 'width' | 'height' | 'bottom' | 'right' | 'left'
@@ -8,13 +20,13 @@ type AppSizeInfo = 'width' | 'height' | 'bottom' | 'right' | 'left'
 export const useAppsStore = defineStore('appsState', {
   state: () => {
     return {
-      terminalContext: appInfo.TERMINALINFO as TerminalContext,
-      browserContext: appInfo.BROWSERINFO as BrowserContext,
+      terminalContext: JSON.parse(JSON.stringify(appInfo.TERMINALINFO)) as TerminalContext,
+      browserContext: JSON.parse(JSON.stringify(appInfo.BROWSERINFO)) as BrowserContext,
       blobContext: appInfo.BLOBINFO as BlobContext,
       wallpaperContext: appInfo.WALLPAPERINFO as WallpaperContext,
       chatContext: appInfo.CHATINFO as ChatContext,
-      activeApps: ['Chat'] as string[],
-      showApps: ['Chat'] as string[],
+      activeApps: ['Browser'] as string[],
+      showApps: ['Browser'] as string[],
       // activeApp: 'Terminal'
     }
   },
@@ -87,6 +99,7 @@ export const useAppsStore = defineStore('appsState', {
       return name
     },
     openApp(name: string) {
+      name = name.slice(0, 1).toUpperCase() + name.slice(1)
       if (this.appRunning(name)) {
         if (!this.appShowing(name)) {
           this.appShow(name)
@@ -102,8 +115,16 @@ export const useAppsStore = defineStore('appsState', {
       }
     },
     closeApp(name: string) {
-      this.appRun(name)
-      this.appShow(name)
+      name = name.slice(0, 1).toUpperCase() + name.slice(1)
+      if (this.appRunning(name)) {
+        this.appRun(name)
+        this.appShow(name)
+        // @ts-ignore
+        this[name.toLowerCase() + 'Context'] = JSON.parse(JSON.stringify(AppConnection[name]))
+        return true
+      } else {
+        return false
+      }
     },
     minApp(name: string) {
       this.appShow(name)
@@ -128,6 +149,57 @@ export const useAppsStore = defineStore('appsState', {
       const index = this.showApps.findIndex((name) => name === this.appInTop())
       this.showApps.splice(index, 1)
       this.showApps.push(name)
+    },
+    moveApp(e: MouseEvent, appName: string) {
+      const windowContext = this.appContext(appName)
+      function beforeWindowMove(e: MouseEvent) {
+        document.body.style.userSelect = 'none'
+        const onClickMousePos = {
+          x: e.clientX,
+          y: e.clientY
+        }
+
+        const initRange = {
+          top: windowContext.top,
+          left: windowContext.left,
+          bottom: windowContext.bottom,
+          right: windowContext.right
+        }
+
+        const maxTop = windowSize.height - windowContext.height - 50
+        const maxLeft = windowSize.width - windowContext.width
+
+        function windowMoving(e: MouseEvent) {
+          const currentMousePos = {
+            x: e.clientX,
+            y: e.clientY
+          }
+
+          const offsetPos = { offsetX: currentMousePos.x - onClickMousePos.x, offsetY: currentMousePos.y - onClickMousePos.y }
+
+          const newTop = initRange.top + offsetPos.offsetY
+          const newLeft = initRange.left + offsetPos.offsetX
+          const newRight = initRange.right - offsetPos.offsetX
+          const newBottom = initRange.bottom - offsetPos.offsetY
+
+          windowContext.top = newBottom > 50 ? Math.max(0, newTop) : maxTop
+          windowContext.left = newRight > 0 ? Math.max(0, newLeft) : maxLeft
+          windowContext.bottom = Math.max(50, newBottom)
+          windowContext.right = Math.max(0, newRight)
+        }
+
+        function windowMoved() {
+          console.log('moved')
+
+          document.body.style.userSelect = 'auto'
+          document.removeEventListener('mousemove', windowMoving)
+          document.removeEventListener('mouseup', windowMoved)
+        }
+
+        document.addEventListener('mousemove', windowMoving)
+        document.addEventListener('mouseup', windowMoved)
+      }
+      beforeWindowMove(e)
     }
   }
 })

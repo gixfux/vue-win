@@ -13,6 +13,7 @@ declare interface appContext {
   minHeight: number
   zIndex: number
   scalable: boolean
+  headerSelf?: boolean
 }
 
 declare interface TerminalContext extends appContext {
@@ -51,10 +52,8 @@ declare interface TerminalBoxContext {
   terminal?: HTMLDivElement
   historyInfoBox?: HTMLDivElement
   currentInfoBox?: HTMLDivElement,
-  commendEnterSpan?: {
-    element?: HTMLSpanElement,
-    onclickFun?: Function
-  }
+  commendEnterSpan?: HTMLSpanElement,
+  tipsSpan?: HTMLSpanElement
 }
 
 declare interface AppInfo {

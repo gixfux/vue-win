@@ -19,107 +19,22 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import Terminal from './TerminalApp/index'
 
-const context: TerminalBoxContext = {}
-class Terminal {
-  constructor(public context: TerminalBoxContext) {
-    this.context = context
-  }
-
-  startCmd() {
-    const p = document.createElement('p')
-    const span1 = document.createElement('span')
-    const span2 = document.createElement('span')
-    span1.innerText = '[lxb ~]'
-    this.context.currentInfoBox?.appendChild(p)
-    p.classList.add('cmd-input-line')
-    span1.classList.add('cmd-input-start')
-    p.appendChild(span1)
-    span2.contentEditable = 'true'
-    span2.classList.add('cmd-input-span')
-    span2.innerText = ''
-    p.appendChild(span2)
-
-    this.context.currentInfoBox?.appendChild(p)
-    setTimeout(() => {
-      span2.focus()
-    }, 0)
-
-    function cmdInputLineClick() {
-      span2.focus()
-    }
-
-    const cmdInputEvent = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        this.context.historyInfoBox?.appendChild(p)
-        ;(e.target as HTMLSpanElement).contentEditable = 'false'
-        this.context.currentInfoBox!.removeEventListener('click', cmdInputLineClick)
-        span2.removeEventListener('keydown', cmdInputEvent)
-
-        this.commendEnter((e.target as HTMLSpanElement).innerText)
-      }
-    }
-
-    this.context.currentInfoBox?.addEventListener('click', cmdInputLineClick)
-
-    span2.addEventListener('keydown', cmdInputEvent)
-  }
-
-  commendEnter(str: string) {
-    const newStr = str.trim()
-    if (newStr === 'help') {
-      this.addLines('  app  -  应用列表以及对应操作 \n  time  - 输出当前时间 \n  help  - 显示所有可执行的命令 \n  clear - 清屏 \n  exit  - 退出终端')
-    } else if (newStr === 'npm run start') {
-      this.addLines('npm run start : 成功')
-    } else if (newStr === 'clear') {
-      this.clear()
-    } else {
-      this.wrongCommend(newStr)
-      this.startCmd()
-    }
-  }
-
-  addLines(str: string) {
-    const p = document.createElement('p')
-    p.classList.add('response-p')
-    let index = 0
-    const strLength = str.length
-    const timer = setInterval(() => {
-      p.innerText += str[index]
-      index++
-      context.currentInfoBox!.scrollIntoView()
-      if (index >= strLength) {
-        clearInterval(timer)
-        this.startCmd()
-      }
-    }, 10)
-    this.context.historyInfoBox?.appendChild(p)
-  }
-
-  wrongCommend(str: string) {
-    const p = document.createElement('p')
-    p.classList.add('response-wrong-p')
-    p.innerText = `命令${str}未找到, 请输入help查看更多`
-    this.context.historyInfoBox?.appendChild(p)
-  }
-
-  clear() {
-    this.context.historyInfoBox!.replaceChildren()
-    this.startCmd()
-  }
-}
-
-const terminal = new Terminal(context)
+const terminal = new Terminal()
 onMounted(() => {
   const historyInfoBox = document.getElementById('history-info') as HTMLDivElement
   const currentInfoBox = document.getElementById('current-info') as HTMLDivElement
   const terminalDiv = document.getElementById('terminal') as HTMLDivElement
-  context.terminal = terminalDiv
-  context.currentInfoBox = currentInfoBox
-  context.historyInfoBox = historyInfoBox
+  terminal.context.terminal = terminalDiv
+  terminal.context.currentInfoBox = currentInfoBox
+  terminal.context.historyInfoBox = historyInfoBox
   terminal.startCmd()
 })
+
+const addLogOneByOne = function (text: string, delay = 20, callback) {
+  if (typeof text !== 'string' || text === '') return
+}
 </script>
 
 <style lang="scss" scoped>

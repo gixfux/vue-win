@@ -1,11 +1,11 @@
 const appInfo = {
   TERMINALINFO: {
-    top: 100,
-    left: 400,
-    bottom: 300,
-    right: 20,
-    width: window.innerWidth - 420,
-    height: window.innerHeight - 400,
+    top: window.innerHeight / 2 - 200,
+    left: window.innerWidth / 2 - 200,
+    bottom: window.innerHeight / 2 - 200,
+    right: window.innerWidth / 2 - 200,
+    width: 400,
+    height: 400,
     isActive: false,
     isShow: false,
     windowName: 'terminal',
@@ -29,7 +29,8 @@ const appInfo = {
     minHeight: 120,
     minWidth: 250,
     zIndex: 0,
-    scalable: true
+    scalable: true,
+    headerSelf: true
   },
   BLOBINFO: {
     top: 30,

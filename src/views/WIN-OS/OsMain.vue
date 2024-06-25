@@ -7,7 +7,7 @@
       <div class="bgmask" v-show="!wallpaperChanging"></div>
     </Transition>
     <div class="window-main">
-      <Window v-for="windowName in appsStore.activeApps" :window-name="windowName" :key="windowName">
+      <Window v-for="windowName in appsStore.activeApps" ref="windowList" :window-name="windowName" :key="windowName">
         <template v-slot="slotProps">
           <component :is="componentRef[slotProps.windowName as ComponentRef]" :window-name="slotProps.windowName" @wallpaperChange="wallpaperChange"></component>
         </template>
@@ -26,13 +26,14 @@ import Wallpaper from '@/components/WIN-OS/APP/Wallpaper.vue'
 import Blob from '@/components/WIN-OS/APP/BlobApp.vue'
 import Chat from '@/components/WIN-OS/APP/ChatApp.vue'
 import Footer from '@/components/WIN-OS/Footer.vue'
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 
 const appsStore = useAppsStore()
 appsStore.initApp()
 // const url = '/wallpaper/windows1.jpg'
 
 let wallpaperChanging = ref(true)
+const windowList = reactive([])
 
 type ComponentRef = 'Terminal' | 'Browser' | 'Blob' | 'Wallpaper' | 'Chat'
 const componentRef: { [key in ComponentRef]: any } = {
@@ -67,7 +68,7 @@ onMounted(() => {
     width: 100%;
     height: 100%;
     position: absolute;
-    background: center / cover no-repeat url(/wallpaper/windows1.jpg);
+    background: center / cover no-repeat url(/wallpaper/windows1-zip.jpg);
     transition: background-color 0.15s linear;
   }
 

@@ -86,6 +86,8 @@ watch(activeKey, () => {
 })
 
 function passValidator(rule: any, value: string, callback: any) {
+  console.log(rule, callback)
+
   if (!/^[a-zA-Z0-9_-]{6,16}$/.test(value)) {
     return Promise.reject('Please input the password')
   } else {
@@ -96,7 +98,7 @@ function passValidator(rule: any, value: string, callback: any) {
   }
 }
 
-function confirmPassValidator(rule: any, value: string, callback: any) {
+function confirmPassValidator() {
   if (formState.confirmPassword !== formState.password) {
     return Promise.reject('两次密码不一致')
   } else {

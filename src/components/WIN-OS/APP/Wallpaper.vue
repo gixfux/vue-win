@@ -20,8 +20,8 @@
       <div class="right-content">
         <div class="random right-box" v-show="currentPanel === 'random'">
           <div class="pics">
-            <div class="pic" :class="{wallpaperActive: currentWallpaper === 'default'}" @click="changeWallpaper('default', '/wallpaper/windows1.jpg')">
-              <img src="/wallpaper/windows1.jpg" alt="">
+            <div class="pic" :class="{wallpaperActive: currentWallpaper === 'default'}" @click="changeWallpaper('default', '/wallpaper/windows1-zip.jpg')">
+              <img src="/wallpaper/windows1-zip.jpg" alt="">
               <span>默认壁纸</span>
             </div>
 

@@ -29,7 +29,7 @@ const chatStore = useChatStore()
 const chatSocketStore = useChatSocketStore()
 let loginSuccess = ref(false)
 
-async function initUserInfo(status: 'login' | 'register') {
+async function initUserInfo() {
   await chatStore.initRoomGather()
   chatSocketStore.connectSocket()
   loginSuccess.value = true

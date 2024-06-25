@@ -10,6 +10,7 @@ export const useChatSocketStore = defineStore('chatSocketStore', {
   },
   getters: {
     currentRoomId: () => {
+      // @ts-ignore
       return useChatStore().currentRoom.type === 'group' ? useChatStore().currentRoom.groupId : useChatStore().currentRoom.userId
     }
   },

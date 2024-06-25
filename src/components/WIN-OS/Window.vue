@@ -10,7 +10,8 @@
         <span class="btn btn-close" @click="closeWindow"></span>
       </div>
 
-      <slot :windowName="props.windowName"></slot>
+      <slot :windowName="props.windowName">
+      </slot>
     </div>
   </Transition>
 </template>
@@ -115,14 +116,9 @@ onMounted(() => {
 
   .header {
     position: absolute;
-    top: 3;
-    left: 3;
-    right: 3;
     width: 100%;
     height: 30px;
     background-color: transparent;
-    // position: absolute;
-    z-index: 2;
   }
 
   .window-control {
@@ -132,7 +128,7 @@ onMounted(() => {
     right: 6px;
     display: flex;
     align-items: center;
-    z-index: 4;
+    z-index: 999;
 
     & .btn::before {
       transition: all 0.2s;

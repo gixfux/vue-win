@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { useChatSocketStore } from '@/stores/chatSocket/chatSocket'
 import { useChatStore } from '@/stores/chatStore'
-import { nextTick, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const chatStore = useChatStore()
 const chatSocket = useChatSocketStore()
